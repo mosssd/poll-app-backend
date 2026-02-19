@@ -11,17 +11,19 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
   }
 });
 
-let pollData: PollData = {
-  "Dog": 0,
-  "Cat": 0,
-  "Rabbit": 0,
-  "Snake": 0
-};
-
+let pollData: PollData = {};
 io.on('connection', (socket) => {
   console.log(`User connected: ${socket.id}`);
 
   socket.emit('update_results', pollData);
+
+  socket.on('add_option', (newOption: string) => {
+    if (newOption && pollData[newOption] === undefined) {
+      pollData[newOption] = 0; 
+      
+      io.emit('update_results', pollData);
+    }
+  });
 
   socket.on('vote_cast', (framework: string) => {
     if (pollData[framework] !== undefined) {
@@ -30,6 +32,12 @@ io.on('connection', (socket) => {
       io.emit('update_results', pollData);
     }
   });
+
+  socket.on('clear_poll', () => {
+    pollData = {};
+    io.emit('update_results', pollData);
+  }
+  );
 
   socket.on('disconnect', () => {
     console.log('User disconnected');

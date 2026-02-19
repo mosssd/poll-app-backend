@@ -7,5 +7,7 @@ export interface ServerToClientEvents {
 }
 
 export interface ClientToServerEvents {
-  vote_cast: (framework: string) => void;
+  vote_cast: (choice: string) => void;
+  add_option: (options: string) => void;
+  clear_poll: () => void;
 }
